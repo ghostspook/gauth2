@@ -1,41 +1,64 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+
+    <button @click="useAuthProvider">Google Login</button>
+
   </div>
 </template>
 
 <script>
+import { Google } from 'universal-social-auth'
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
-  }
+  },
+  data() {
+    return {
+      responseData: {},
+      hash: '',
+      data: {},
+    }
+  },
+  methods: {
+    useAuthProvider () {
+      this.$Oauth.authenticate('google', Google).then((response) => {
+        const rsp = response
+        if (rsp.code) {
+          this.responseData.code = rsp.code
+          this.responseData.provider = 'google'
+          this.useSocialLogin()
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+    },
+    useSocialLogin () {
+      // otp from input Otp form
+      // hash user data in your backend with Cache or save to database
+      const pdata = { code: this.responseData.code, otp: this.data.tok, hash: this.hash }
+      this.$axios.post('http://be.portal-dev.ide.edu.ec/login/', pdata).then(async (response) => {
+        console.log(response)
+          // `response` data base on your backend config
+        if (response.data.status === 444) {
+          this.hash = response.data.hash
+          this.fauth = true // Option show Otp form incase you using 2fa or any addition security apply to your app you can handle all that from here
+        }else if (response.data.status === 445) {
+          //do something Optional
+        }else {
+          await this.useLoginFirst(response.data.u)
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+    },
+    async  useLoginFirst (e) {
+      // this sample of to pust user data to my store
+      console.log('userdata', e)
+    }
+  },
 }
 </script>
 
