@@ -24,22 +24,24 @@ export default {
   },
   methods: {
     useAuthProvider () {
-      this.$Oauth.authenticate('google', Google).then((response) => {
+      this.$Oauth.authenticate('google', Google).then(async (response) => {
         const rsp = response
         if (rsp.code) {
           this.responseData.code = rsp.code
           this.responseData.provider = 'google'
-          this.useSocialLogin()
+          await this.useSocialLogin()
         }
       }).catch((err) => {
         console.log(err)
       })
     },
-    useSocialLogin () {
+    async useSocialLogin () {
       // otp from input Otp form
       // hash user data in your backend with Cache or save to database
       const pdata = { code: this.responseData.code, otp: this.data.tok, hash: this.hash }
-      this.$axios.post('http://be.portal-dev.ide.edu.ec/login/', pdata).then(async (response) => {
+      try {
+        await this.$axios.get('http://be.portal-dev.ide.edu.ec/sanctum/csrf-cookie')
+        const response = await this.$axios.post('http://be.portal-dev.ide.edu.ec/login/', pdata)
         console.log(response)
           // `response` data base on your backend config
         if (response.data.status === 444) {
@@ -50,9 +52,9 @@ export default {
         }else {
           await this.useLoginFirst(response.data.u)
         }
-      }).catch((err) => {
+      } catch(err) {
         console.log(err)
-      })
+      }
     },
     async  useLoginFirst (e) {
       // this sample of to pust user data to my store

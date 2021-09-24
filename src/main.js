@@ -18,7 +18,12 @@ const options = {
 
 const Oauth = new UniversalSocialauth(axios, options)
 
-Vue.prototype.$axios = axios
+const client = axios.create({
+  withCredentials: true,
+  json: true
+})
+
+Vue.prototype.$axios = client
 Vue.prototype.$Oauth = Oauth
 
 new Vue({
