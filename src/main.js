@@ -10,8 +10,8 @@ Vue.config.productionTip = false
 const options = {
   providers: {
     google: {
-      clientId: '1021657019789-0khdrh3s877pn9kl3gh5tf29tm6uq6bt.apps.googleusercontent.com',
-      redirectUri: 'http://portal-dev.ide.edu.ec:8080/auth/callback',
+      clientId: process.env.VUE_APP_GOOGLE_CLIENT_ID,
+      redirectUri: process.env.VUE_APP_GOOGLE_REDIRECT_URL,
     },
   }
 }

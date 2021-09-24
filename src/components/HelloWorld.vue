@@ -40,9 +40,8 @@ export default {
       // hash user data in your backend with Cache or save to database
       const pdata = { code: this.responseData.code, otp: this.data.tok, hash: this.hash }
       try {
-        await this.$axios.get('http://be.portal-dev.ide.edu.ec/sanctum/csrf-cookie')
-        const response = await this.$axios.post('http://be.portal-dev.ide.edu.ec/login/', pdata)
-        console.log(response)
+        await this.$axios.get(`${process.env.VUE_APP_BACKEND_BASE_URL}sanctum/csrf-cookie`)
+        const response = await this.$axios.post(`${process.env.VUE_APP_BACKEND_BASE_URL}login/`, pdata)
           // `response` data base on your backend config
         if (response.data.status === 444) {
           this.hash = response.data.hash
@@ -50,7 +49,7 @@ export default {
         }else if (response.data.status === 445) {
           //do something Optional
         }else {
-          await this.useLoginFirst(response.data.u)
+          await this.useLoginFirst(response.data)
         }
       } catch(err) {
         console.log(err)
@@ -58,7 +57,7 @@ export default {
     },
     async  useLoginFirst (e) {
       // this sample of to pust user data to my store
-      console.log('userdata', e)
+      console.log(e)
     }
   },
 }
