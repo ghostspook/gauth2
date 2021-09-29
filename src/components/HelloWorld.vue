@@ -58,6 +58,13 @@ export default {
     async  useLoginFirst (e) {
       // this sample of to pust user data to my store
       console.log(e)
+      try {
+        const response = await this.$axios.get(`${process.env.VUE_APP_BACKEND_BASE_URL}api/user`)
+        this.$store.commit('setUserInfo', response.data)
+        console.log(usr)
+      } catch (err) {
+        console.log(err)
+      }
     }
   },
 }
