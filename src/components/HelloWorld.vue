@@ -4,6 +4,9 @@
 
     <button v-if="!isAuthenticated" @click="useAuthProvider">Google Login</button>
     <button v-if="isAuthenticated" @click="logout">Logout</button>
+    <br>
+    <br><br>
+    <button @click="fetchUserInfo">Fetch user info (API call)</button>
 
   </div>
 </template>
@@ -80,6 +83,15 @@ export default {
         this.$store.commit('setUserInfo', null)
       } catch (err) {
         console.log(err)
+      }
+    },
+    async fetchUserInfo() {
+      try {
+        const response = await this.$axios.get(`${process.env.VUE_APP_BACKEND_BASE_URL}api/user`)
+        console.log(response.data)
+      } catch (err) {
+        console.log(err)
+        alert('Error')
       }
     },
   },
