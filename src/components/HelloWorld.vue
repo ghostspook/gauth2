@@ -1,8 +1,9 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <h1>Welcome. Please, login.</h1>
 
-    <button @click="useAuthProvider">Google Login</button>
+    <button v-if="!isAuthenticated" @click="useAuthProvider">Google Login</button>
+    <button v-if="isAuthenticated" @click="logout">Logout</button>
 
   </div>
 </template>
@@ -21,6 +22,14 @@ export default {
       hash: '',
       data: {},
     }
+  },
+  computed: {
+    isAuthenticated() {
+      return this.currentUser != null
+    },
+    currentUser() {
+      return (this.$store.state.userInfo) ? this.$store.state.userInfo : null
+    },
   },
   methods: {
     useAuthProvider () {
@@ -49,23 +58,30 @@ export default {
         }else if (response.data.status === 445) {
           //do something Optional
         }else {
-          await this.useLoginFirst(response.data)
+          await this.useLoginFirst()
         }
       } catch(err) {
         console.log(err)
       }
     },
-    async  useLoginFirst (e) {
+    async  useLoginFirst () {
       // this sample of to pust user data to my store
-      console.log(e)
       try {
         const response = await this.$axios.get(`${process.env.VUE_APP_BACKEND_BASE_URL}api/user`)
         this.$store.commit('setUserInfo', response.data)
-        console.log(usr)
+        console.log(response.data)
       } catch (err) {
         console.log(err)
       }
-    }
+    },
+    async logout() {
+      try {
+        await this.$axios.get(`${process.env.VUE_APP_BACKEND_BASE_URL}logout`)
+        this.$store.commit('setUserInfo', null)
+      } catch (err) {
+        console.log(err)
+      }
+    },
   },
 }
 </script>
